@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import AnalysisPanel from './Analysis.jsx';
 import IncidentPanel from './Incidents.jsx';
 import WeekendPanel from './Weekend.jsx';
+import Profiles from './Profiles.jsx';
 import {
   Activity, ArrowDownRight, ArrowRight, ArrowUpRight, BellOff, CalendarDays,
   CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, Clock3, ExternalLink,
@@ -11,7 +12,7 @@ import {
 
 const TZ = 'Asia/Taipei';
 const BASE = import.meta.env.BASE_URL;
-const EMPTY = { season: new Date().getFullYear(), schedule: [], driverStandings: [], constructorStandings: [], results: {}, qualifyingResults: {}, sprintResults: {}, events: {}, analysisAvailable: [], updatedAt: null, warnings: [] };
+const EMPTY = { season: new Date().getFullYear(), schedule: [], driverStandings: [], constructorStandings: [], standingsHistory: {driver:{},constructor:{}}, results: {}, qualifyingResults: {}, sprintResults: {}, events: {}, analysisAvailable: [], updatedAt: null, warnings: [] };
 const t = (value, opts = {}) => value ? new Intl.DateTimeFormat('zh-TW', { timeZone: TZ, ...opts }).format(new Date(value)) : '—';
 const twDate = (value) => t(value, { month: '2-digit', day: '2-digit', weekday: 'short' });
 const twClock = (value) => t(value, { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
@@ -32,6 +33,7 @@ const nav = [
   { id: 'home', label: '總覽', icon: Gauge },
   { id: 'schedule', label: '賽程', icon: CalendarDays },
   { id: 'standings', label: '積分榜', icon: Trophy },
+  { id: 'profiles', label: '車手／車隊', icon: Users },
   { id: 'races', label: '賽事紀錄', icon: Flag }
 ];
 const teamColors = {
@@ -112,7 +114,7 @@ function SummaryHero({ upcoming, recent, now, data, onOpen }) {
   </section>;
 }
 
-function Home({ data, upcoming, recent, now, onOpen, onTab }) {
+function Home({ data, upcoming, recent, now, onOpen, onTab, onProfile }) {
   const sorted = data.schedule || [];
   const future = sorted.filter((r) => raceDate(r).getTime() > now).slice(0, 4);
   const display = future.length ? future : [...sorted].reverse().slice(0, 4);
@@ -124,7 +126,7 @@ function Home({ data, upcoming, recent, now, onOpen, onTab }) {
       <section className="surface-panel"><PanelTitle eyebrow="RACE CALENDAR" title="近期賽程" action={<button className="text-button" onClick={() => onTab('schedule')}>完整賽程 <ArrowRight size={15}/></button>}/>
         {display.length ? <div className="race-list">{display.map((race) => <CircuitCard compact data={data} race={race} key={race.round} onClick={() => onOpen(race.round)}/>)}</div> : <EmptyState title="尚未載入賽程" detail="請先執行 GitHub Actions 更新賽季資料" icon={CalendarDays}/>}</section>
       <section className="surface-panel"><PanelTitle eyebrow="DRIVERS CHAMPIONSHIP" title="車手積分前五名" action={<button className="text-button" onClick={() => onTab('standings')}>完整排名 <ArrowRight size={15}/></button>}/>
-        {drivers.length ? <div className="leader-list">{drivers.map((d) => <div className="leader-row" key={d.Driver.driverId}><span className={`leader-rank ${d.position === '1' ? 'top' : ''}`}>{String(d.position).padStart(2,'0')}</span><span className="team-accent" style={{ '--team':getTeamColor(d.Constructors?.[0]?.constructorId) }} /><div className="leader-name"><strong>{d.Driver.givenName} {d.Driver.familyName}</strong><span>{d.Constructors?.map((c) => c.name).join(' / ')}</span></div><strong className="leader-points">{points(d.points)} <small>PTS</small></strong></div>)}</div> : <EmptyState title="尚無積分資料" detail="新賽季開始後會由資料來源更新" icon={Trophy}/>}</section>
+        {drivers.length ? <div className="leader-list">{drivers.map((d) => <button type="button" className="leader-row" onClick={() => onProfile('driver', d.Driver.driverId)} title="查看車手完整資料" key={d.Driver.driverId}><span className={`leader-rank ${d.position === '1' ? 'top' : ''}`}>{String(d.position).padStart(2,'0')}</span><span className="team-accent" style={{ '--team':getTeamColor(d.Constructors?.[0]?.constructorId) }} /><div className="leader-name"><strong>{d.Driver.givenName} {d.Driver.familyName}</strong><span>{d.Constructors?.map((c) => c.name).join(' / ')}</span></div><strong className="leader-points">{points(d.points)} <small>PTS</small></strong></button>)}</div> : <EmptyState title="尚無積分資料" detail="新賽季開始後會由資料來源更新" icon={Trophy}/>}</section>
     </div>
     <div className="disclaimer-inline"><Info size={15}/> 免費歷史／賽程資訊，不提供秒級即時位置或事故責任判定。</div>
   </div>;
@@ -138,16 +140,16 @@ function Schedule({ data, onOpen, now }) {
     {schedule.length ? <div className="schedule-list">{schedule.map((race) => <CircuitCard key={race.round} race={race} data={data} onClick={() => onOpen(race.round)} />)}</div> : <EmptyState title="這個分類目前沒有賽事" detail="請切換篩選條件或等候資料更新" icon={CalendarDays}/>}</div>;
 }
 
-function Standings({ data }) {
+function Standings({ data, onProfile }) {
   const [kind, setKind] = useState('drivers');
   const drivers = data.driverStandings || [];
   const teams = data.constructorStandings || [];
   const ranking = kind === 'drivers' ? drivers : teams;
   return <div className="view"><PanelTitle eyebrow={`CHAMPIONSHIP / ${data.season}`} title="賽季積分榜" action={<span className="section-count">截至最近一次資料更新</span>}/>
     <div className="segmented" role="group" aria-label="積分榜分類"><button className={kind === 'drivers' ? 'selected' : ''} onClick={() => setKind('drivers')}><Users size={15}/> 車手積分</button><button className={kind === 'teams' ? 'selected' : ''} onClick={() => setKind('teams')}><Wrench size={15}/> 車隊積分</button></div>
-    {ranking.length ? <div className="table-panel"><div className="table-head"><span>排名</span><span>{kind === 'drivers' ? '車手 / 車隊' : '車隊'}</span><span>勝場</span><span>積分</span></div>{ranking.map((d) => { const driver = kind === 'drivers'; const team = driver ? d.Constructors?.[0] : d.Constructor; return <div className="standings-row" key={driver ? d.Driver.driverId : team?.constructorId}>
+    {ranking.length ? <div className="table-panel"><div className="table-head"><span>排名</span><span>{kind === 'drivers' ? '車手 / 車隊' : '車隊'}</span><span>勝場</span><span>積分</span></div>{ranking.map((d) => { const driver = kind === 'drivers'; const team = driver ? d.Constructors?.[0] : d.Constructor; return <button type="button" className="standings-row profile-open-row" onClick={() => onProfile(driver ? 'driver' : 'constructor', driver ? d.Driver.driverId : team?.constructorId)} key={driver ? d.Driver.driverId : team?.constructorId}>
       <span className={`placing ${d.position === '1' ? 'first' : ''}`}>{String(d.position).padStart(2,'0')}</span><span className="driver-identity"><span className="team-accent" style={{'--team':getTeamColor(team?.constructorId)}}/><span><strong>{driver ? `${d.Driver.givenName} ${d.Driver.familyName}` : team?.name}</strong><small>{driver ? team?.name : team?.nationality || 'Constructor'}</small></span></span>
-      <span className="wins">{d.wins}</span><strong className="score">{points(d.points)}</strong></div>; })}</div> : <EmptyState title="積分榜尚未公布" detail="賽季開始後會自動帶入官方公布的成績資料" icon={Trophy}/>}</div>;
+      <span className="wins">{d.wins}</span><strong className="score">{points(d.points)}</strong></button>; })}</div> : <EmptyState title="積分榜尚未公布" detail="賽季開始後會自動帶入官方公布的成績資料" icon={Trophy}/>}</div>;
 }
 
 function SessionSchedule({ race }) {
@@ -179,6 +181,7 @@ export default function App() {
   const [detailTab, setDetailTab] = useState('results');
   const [now, setNow] = useState(Date.now());
   const [showInfo, setShowInfo] = useState(false);
+  const [profileRequest, setProfileRequest] = useState(null);
 
   useEffect(() => {
     let active = true;
@@ -196,20 +199,22 @@ export default function App() {
   const selected = sorted.find((r) => String(r.round) === String(raceRound)) || recent || sorted[0];
   const openRace = (round) => { setRaceRound(round); setDetailTab((data.qualifyingResults?.[round]?.length || data.sprintResults?.[round]?.length) ? 'weekend' : (data.analysisAvailable || []).map(String).includes(String(round)) ? 'analysis' : 'results'); setTab('races'); window.scrollTo({ top: 0, behavior: 'smooth' }); };
   const go = (which) => { setTab(which); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  const openProfile = (type,id) => { if(!id)return;setProfileRequest({type,id});setTab('profiles');window.scrollTo({top:0,behavior:'smooth'}); };
 
   return <div className="app-layout">
-    <aside className="sidebar"><Brand/><div className="sidebar-section">EXPLORE</div><nav aria-label="主選單">{nav.map((item) => <NavButton key={item.id} item={item} active={tab === item.id} onClick={() => go(item.id)}/>)}</nav><div className="sidebar-spacer"/><div className="sidebar-info"><div className="sidebar-info-icon"><Activity size={18}/></div><strong>FREE DATA EDITION</strong><p>全年賽程 · 歷史成績 · Race Control 訊息</p><span>非即時追蹤</span></div><div className="sidebar-footer">UNOFFICIAL FAN PROJECT <br/>v1.3.0</div></aside>
+    <aside className="sidebar"><Brand/><div className="sidebar-section">EXPLORE</div><nav aria-label="主選單">{nav.map((item) => <NavButton key={item.id} item={item} active={tab === item.id} onClick={() => go(item.id)}/>)}</nav><div className="sidebar-spacer"/><div className="sidebar-info"><div className="sidebar-info-icon"><Activity size={18}/></div><strong>FREE DATA EDITION</strong><p>全年賽程 · 歷史成績 · Race Control 訊息</p><span>非即時追蹤</span></div><div className="sidebar-footer">UNOFFICIAL FAN PROJECT <br/>v1.4.0</div></aside>
     <div className="main-shell"><header className="topbar"><div className="mobile-brand"><Brand/></div><div className="breadcrumb"><span>F1 RACE TRACKER</span><ChevronRight size={14}/><strong>{nav.find((item) => item.id === tab)?.label}</strong></div><div className="topbar-right"><span className="desktop-season">{data.season} SEASON</span><div className="update-state"><StatusDot live={false}/><span>{status === 'ready' ? '歷史 / 排程資料' : status === 'loading' ? '載入中' : '等待資料'}</span></div><button className="top-icon" onClick={() => setShowInfo(true)} title="資料來源與更新方式"><Info size={18}/></button></div></header>
       <main className="main-content">
         {status === 'error' && <div className="warning-bar"><Info size={17}/> 無法載入賽事資料。請檢查 GitHub Actions 是否成功部署，或重新整理網頁。</div>}
         {status === 'pending' && <div className="warning-bar"><RefreshCw size={17}/> 專案已建立，等待首次 GitHub Actions 更新賽程與成績資料。</div>}
         {status === 'ready' && data.warnings?.length > 0 && <div className="warning-bar"><Info size={17}/>{data.warnings.join(' ')}</div>}
-        {tab === 'home' && <Home data={data} upcoming={upcoming} recent={recent} now={now} onOpen={openRace} onTab={go}/>}
+        {tab === 'home' && <Home data={data} upcoming={upcoming} recent={recent} now={now} onOpen={openRace} onTab={go} onProfile={openProfile}/>}
         {tab === 'schedule' && <Schedule data={data} now={now} onOpen={openRace}/>}
-        {tab === 'standings' && <Standings data={data}/>}
+        {tab === 'standings' && <Standings data={data} onProfile={openProfile}/>}
+        {tab === 'profiles' && <Profiles data={data} request={profileRequest} onRace={openRace}/> }
         {tab === 'races' && <Results data={data} race={selected} tab={detailTab} setTab={setDetailTab} onBack={() => go('schedule')}/>}
       </main>
-      <footer className="main-footer"><span>資料來源：<a href="https://api.jolpi.ca/docs/" target="_blank" rel="noreferrer">Jolpica F1</a> · <a href="https://openf1.org/docs/" target="_blank" rel="noreferrer">OpenF1</a></span><span>最新產生：{data.updatedAt ? twClock(data.updatedAt) : '等待首次部署'}（台灣時間）</span><span>非官方 · 非即時 · v1.2.1</span></footer>
+      <footer className="main-footer"><span>資料來源：<a href="https://api.jolpi.ca/docs/" target="_blank" rel="noreferrer">Jolpica F1</a> · <a href="https://openf1.org/docs/" target="_blank" rel="noreferrer">OpenF1</a></span><span>最新產生：{data.updatedAt ? twClock(data.updatedAt) : '等待首次部署'}（台灣時間）</span><span>非官方 · 非即時 · v1.4.0</span></footer>
     </div>
     <nav className="mobile-nav" aria-label="手機主選單">{nav.map((item) => <NavButton key={item.id} item={item} active={tab === item.id} onClick={() => go(item.id)}/>)}</nav>
     {showInfo && <div className="modal-backdrop" onClick={() => setShowInfo(false)}><div className="info-dialog" role="dialog" aria-modal="true" aria-label="資料說明" onClick={(e) => e.stopPropagation()}><div className="dialog-head"><strong>關於 Race Tracker</strong><button onClick={() => setShowInfo(false)}><span aria-hidden="true">×</span></button></div><p>這是非官方、非商業的賽車資料展示專案。Jolpica 提供賽程、車手／車隊積分及成績；OpenF1 提供已結束賽事的 Race Control 歷史事件、輪胎與逐圈近似位置資料。事故摘要僅根據英文關鍵字分類，不能推定肇事責任。</p><p>資料由 GitHub Actions 約每六小時嘗試更新一次；實際時間可能因排程延遲或 API 限制而變動。不包含即時定位、即時事故播報或推播功能。</p><div className="dialog-links"><a href="https://api.jolpi.ca/docs/" target="_blank" rel="noreferrer">Jolpica API <ExternalLink size={14}/></a><a href="https://openf1.org/docs/" target="_blank" rel="noreferrer">OpenF1 API <ExternalLink size={14}/></a></div><button className="dialog-confirm" onClick={() => setShowInfo(false)}>我知道了</button></div></div>}
