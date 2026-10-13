@@ -66,3 +66,9 @@
 @media(max-width:1130px){.profile-layout{grid-template-columns:195px minmax(0,1fr)}.profile-head{padding:20px}.profile-head h2{font-size:26px}.profile-stat strong{font-size:20px}}
 @media(max-width:850px){.profile-layout{grid-template-columns:1fr}.profile-sidebar{position:static;max-height:none}.profile-picker{flex-direction:row;overflow-x:auto;overflow-y:hidden;padding-bottom:4px}.profile-picker button{flex:0 0 auto;max-width:180px}.profile-picker button span:nth-child(2){white-space:nowrap}.profile-race{grid-template-columns:35px minmax(0,1fr) minmax(0,1.3fr) 15px}}
 @media(max-width:620px){.profile-page-title h1{font-size:24px}.profile-head h2{font-size:24px}.profile-stats-grid{gap:6px;grid-template-columns:repeat(2,minmax(0,1fr))}.profile-stat{padding:11px}.profile-stat strong{font-size:20px}.profile-stats-grid.compact .profile-stat strong{font-size:19px}.profile-chart,.profile-races,.profile-roster,.profile-matchup{padding:12px}.profile-trend-records{grid-template-columns:repeat(3,minmax(0,1fr))}.profile-race{grid-template-columns:32px minmax(0,1fr) minmax(0,.9fr) 12px;gap:6px}.profile-race-result small{font-size:9px}.profile-roster-grid{grid-template-columns:1fr}.profile-matchup-grid>*{font-size:10px}.profile-matchup-grid>b{font-size:20px}}
+
+/* Existing standings and leaderboard become accessible profile links. */
+.profile-open-row,.leader-row{width:100%;text-align:left}
+.profile-open-row{appearance:none;border-left:0;border-right:0;border-bottom:0;background:transparent}
+.profile-open-row:focus-visible,.leader-row:focus-visible{outline:2px solid #ee6370;outline-offset:-2px}
+.profile-open-row:hover,.leader-row:hover{background:#25303e}
