@@ -62,7 +62,11 @@ export function driverStats(log) {
   const races = log.filter(x=>x.result);
   const finishes = races.filter(x=>classified(x.result));
   return {
-    starts:races.filter(x=>num(x.result?.grid)!==null && num(x.result.grid)>0 || classified(x.result) || Boolean(x.result?.status && !/did not start|not started/i.test(x.result.status))).length,
+    starts:races.filter(x=>{
+      const status=String(x.result?.status||'');
+      return !/did not start|not started|withdrawn|did not qualify/i.test(status)
+        && (classified(x.result) || num(x.result?.grid)>0 || /retired|accident|collision|engine|gearbox/i.test(status));
+    }).length,
     entered:races.length,
     finishes:finishes.length,
     podiums:finishes.filter(x=>num(x.result.position)!=null && num(x.result.position)<=3).length,
@@ -83,7 +87,10 @@ export function teamStats(log) {
 }
 export function officialPointsSeries(data, type, ids) {
   const archive = data.standingsHistory?.[type] || {};
-  const rounds = Object.keys(archive).map(Number).filter(Number.isFinite).sort((a,b)=>a-b);
+  // Include rounds with race results but missing standings as an explicit gap.
+  const completed = Object.keys(data.results || {}).filter(r=>(data.results[r] || []).length);
+  const rounds = [...new Set([...completed,...Object.keys(archive)])]
+    .map(Number).filter(Number.isFinite).sort((a,b)=>a-b);
   return rounds.map(round=>{
     const rows=archive[String(round)] || [];
     return {round,...Object.fromEntries(ids.map(id=>[id,rows.find(x=>x.id===id)?.points ?? null]))};
