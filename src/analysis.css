@@ -53,7 +53,7 @@
 .pit-row>span:not(.analysis-driver){text-align:right;color:#c5d0df}
 .pit-head span:nth-child(n+3){text-align:right}
 .analysis-credit{display:flex;align-items:center;gap:6px;font-size:10px;color:#8795a9}
-@media(max-width:650px){.analysis-wrap{gap:14px}.analysis-modes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.analysis-modes button{font-size:11px;padding:10px 5px;justify-content:center;gap:4px}.analysis-modes button svg{width:14px}.replay-row{padding:8px;gap:6px}.analysis-driver{gap:6px}.analysis-driver small{font-size:10px}.tyre-driver-header>span:last-child{font-size:10px}.pit-table{overflow-x:auto}.pit-head,.pit-row{min-width:530px}}
+@media(max-width:650px){.analysis-wrap{gap:14px}.analysis-modes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}.analysis-modes button{font-size:11px;padding:10px 5px;justify-content:center;gap:4px}.analysis-modes button svg{width:14px}.replay-row{padding:8px;gap:6px}.analysis-driver{gap:6px}.analysis-driver small{font-size:10px}.tyre-driver-header>span:last-child{font-size:10px}.pit-table{overflow-x:auto}.pit-head,.pit-row{min-width:530px}}
 
 /* Three race-detail tabs must fit within the narrow iPhone viewport. */
 .result-panel > .segmented{width:100%;justify-content:stretch}
