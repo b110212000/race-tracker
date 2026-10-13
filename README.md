@@ -1,11 +1,14 @@
 # Race Tracker（非官方 F1 賽事追蹤）
 
-React + Vite + GitHub Pages + PWA 的 **免費非即時版 v1.2.1**。
+React + Vite + GitHub Pages + PWA 的 **免費非即時版 v1.3.0**。
 
 ## 有哪些功能？
 
 - 年度 Grand Prix 賽程與所有週末場次，統一顯示 **台灣時間（UTC+8）**
 - 車手 / 車隊年度積分榜
+- **排位賽完整 Q1、Q2、Q3 圈速**、Sprint 衝刺賽成績與積分
+- **正賽實際起跑順位與結果排名變化**，區分 DNF、DSQ、維修區起跑
+- **單站隊友對比**：同車隊排位、起跑、正賽結果、Sprint 名次及積分
 - 已結束比賽的車手名次、完賽狀態與積分
 - OpenF1 有提供的 **歷史** Race Control 事件（包含安全車、事故調查、旗號等）
 - **逐圈近似排名回放**（以歷史位置資料在每圈附近時間取樣，非官方逐圈名次）
@@ -45,6 +48,8 @@ npm run dev
 .github/workflows/pages.yml   # 定期抓取資料並部署到 Pages
 scripts/update_data.py       # Jolpica + OpenF1 歷史資料 → JSON
 scripts/analysis.py          # OpenF1 逐圈取樣、輪胎與進站快取
+scripts/weekend.py           # Jolpica 排位賽與 Sprint 資料分頁收集
+src/Weekend.jsx             # 週末成績、名次升降、隊友比較
 src/App.jsx                  # React 應用程式
 src/styles.css               # RWD 介面
 public/data/season.json      # 靜態資料；Actions build 時重新產生
@@ -65,7 +70,7 @@ vite.config.js               # 由 GitHub Repo 名稱建立正確 Pages base pat
 
 ## 後續版本
 
-v1.1：歷史逐圈近似位置、輪胎與進站紀錄（已完成）。v1.2：事故事件篩選、中文重點標籤與同圈聯動（已完成）。v1.3：提醒通知（需要可用的推播後端）。要有秒級即時排名，需要另行評估合法授權的即時資料方案。
+v1.1：歷史逐圈近似位置、輪胎與進站紀錄（已完成）。v1.2：事故事件篩選、中文重點標籤與同圈聯動（已完成）。v1.3：排位賽、Sprint、起跑排名、隊友比較（已完成）。v1.4：車手與車隊個人檔案。要有秒級即時排名，需要另行評估合法授權的即時資料方案。
 
 ## 事件資料重要限制
 
@@ -74,3 +79,11 @@ v1.1：歷史逐圈近似位置、輪胎與進站紀錄（已完成）。v1.2：
 ### v1.2.1 修正
 - 切換賽事清除上一站的事故圈數篩選
 - 事故搜尋同時支援 #車號 與原始車號
+
+## v1.3.0 新增功能
+
+- 在每站「賽事紀錄 → 週末成績」切換排位賽、Sprint、名次升降、同隊比較。
+- 來源：Jolpica `/{season}/qualifying.json` 與 `/{season}/sprint.json`（分頁每頁最多 100 筆）。資料每六小時嘗試更新，不是即時直播。
+- 起跑順位取自 **Race Results 的 `grid` 欄位**，並非直接把排位賽名次當成起跑順位；有罰退或維修區起跑時兩者可能不同。
+- DNF、取消資格、未起跑與維修區出發不強行計算名次升降。未收到資料時顯示空狀態，不提供假數字。
+- Q1/Q2/Q3 有缺漏時明確顯示「—」；只在實際有 Sprint 的場次展示 Sprint 資料。
