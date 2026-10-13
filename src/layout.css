@@ -1,0 +1,325 @@
+/*
+ * v1.5.2: App-shell geometry and race-card typography.
+ * Header and bottom navigation live OUTSIDE the only vertical scroll region.
+ */
+:root {
+  --app-header-height: 79px;
+  --app-bottom-nav-height: 0px;
+}
+html, body, #root {
+  height: 100%;
+  min-height: 0;
+}
+body {
+  overflow: hidden;
+}
+.app-layout {
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+.main-shell {
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: var(--app-header-height) minmax(0, 1fr);
+}
+.topbar {
+  position: relative;
+  top: auto;
+  z-index: 10;
+  height: 100%;
+  min-height: 0;
+  flex: none;
+}
+.main-scroll {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+.main-scroll:focus-visible {
+  outline: 2px solid #ec5361;
+  outline-offset: -2px;
+}
+.main-content {
+  flex: 1 0 auto;
+  min-width: 0;
+}
+.main-footer {
+  flex: 0 0 auto;
+}
+.profile-sidebar {
+  top: 12px;
+  max-height: calc(100dvh - var(--app-header-height) - 24px);
+}
+/* Consistent reading order: round -> race title / date -> official name -> circuit and state. */
+.circuit-card,
+.schedule-list .circuit-card {
+  display: grid;
+  grid-template-columns: 49px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 15px 17px;
+  min-height: 110px;
+  text-align: left;
+  transition: background .15s, border-color .15s;
+}
+.circuit-card:hover {
+  transform: none;
+}
+.round-block {
+  width: 49px;
+  height: 100%;
+  justify-content: center;
+  gap: 2px;
+  padding-right: 12px;
+  border-right: 1px solid #354152;
+}
+.round-block strong {
+  font-size: 28px;
+}
+.circuit-main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+  width: 100%;
+}
+.circuit-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 5px 12px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.circuit-title {
+  color: #f0f3f9;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.45;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.circuit-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #c5d0dc;
+  font-size: 11px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+.circuit-date svg {
+  color: #a2b1c3;
+  flex: 0 0 auto;
+}
+.circuit-main > .circuit-subtitle {
+  display: block;
+  min-width: 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #a4afbf;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.circuit-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 7px 12px;
+  min-width: 0;
+  margin-top: 2px;
+}
+.circuit-bottom .circuit-place {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex: 1 1 130px;
+  min-width: 0;
+  color: #9aaabc;
+  font-size: 11px;
+  line-height: 1.45;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.circuit-place svg {
+  flex: 0 0 auto;
+  color: #dd737c;
+}
+.circuit-place span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.circuit-bottom .pill {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+.circuit-chevron {
+  color: #8fa0b4;
+  justify-self: end;
+  flex: none;
+}
+.circuit-card.is-compact {
+  min-height: 108px;
+}
+.leader-row {
+  min-height: 67px;
+  padding: 12px 8px;
+  text-align: left;
+  border-radius: 6px;
+}
+.leader-name {
+  gap: 4px;
+}
+.leader-name strong {
+  font-size: 13px;
+  line-height: 1.35;
+}
+.leader-name span {
+  font-size: 11px;
+  line-height: 1.4;
+}
+.leader-points {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.summary-band > div {
+  min-width: 0;
+}
+.summary-band > div > div:last-child {
+  min-width: 0;
+}
+.summary-band strong,
+.summary-band span {
+  line-height: 1.3;
+}
+.profile-stat {
+  justify-content: space-between;
+  gap: 9px;
+}
+.profile-stat strong {
+  line-height: 1.15;
+}
+/* Tablet and phones: one card column, but never a squeezed title/status column. */
+@media (max-width: 1150px) {
+  .circuit-card,
+  .schedule-list .circuit-card {
+    gap: 12px;
+    padding: 14px;
+  }
+}
+@media (max-width: 850px) {
+  .profile-sidebar {
+    max-height: none;
+  }
+}
+@media (max-width: 620px) {
+  :root {
+    --app-header-height: calc(62px + env(safe-area-inset-top, 0px));
+    --app-bottom-nav-height: calc(72px + env(safe-area-inset-bottom, 0px));
+  }
+  .main-shell {
+    height: calc(100vh - var(--app-bottom-nav-height));
+    height: calc(100dvh - var(--app-bottom-nav-height));
+    grid-template-rows: var(--app-header-height) minmax(0, 1fr);
+  }
+  .topbar {
+    height: 100%;
+    min-height: 0;
+    padding: env(safe-area-inset-top, 0px) 16px 0;
+  }
+  .mobile-nav {
+    height: var(--app-bottom-nav-height);
+    min-height: 0;
+    box-sizing: border-box;
+  }
+  .main-content {
+    padding: 18px 13px 24px;
+  }
+  .main-footer {
+    padding: 14px 14px 21px;
+  }
+  .circuit-card,
+  .schedule-list .circuit-card {
+    grid-template-columns: 41px minmax(0, 1fr) auto;
+    min-height: 103px;
+    gap: 10px;
+    padding: 12px 11px;
+  }
+  .round-block {
+    width: 41px;
+    padding-right: 9px;
+  }
+  .round-block strong {
+    font-size: 25px;
+  }
+  .circuit-title {
+    font-size: 13px;
+  }
+  .circuit-main {
+    gap: 5px;
+  }
+  .circuit-main > .circuit-subtitle {
+    font-size: 10px;
+  }
+  .circuit-heading {
+    gap: 4px 8px;
+  }
+  .circuit-date {
+    font-size: 10px;
+  }
+  .circuit-bottom .circuit-place {
+    font-size: 10px;
+  }
+  .circuit-bottom .pill {
+    font-size: 9px;
+  }
+  .summary-band {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .summary-band > div {
+    padding: 12px 6px;
+    justify-content: center;
+  }
+  .summary-band > div > div:last-child {
+    align-items: center;
+    gap: 4px;
+  }
+  .summary-band strong {
+    font-size: 26px;
+  }
+  .summary-band span {
+    font-size: 10px;
+  }
+}
+@media (max-width: 370px) {
+  .circuit-card,
+  .schedule-list .circuit-card {
+    gap: 8px;
+    grid-template-columns: 36px minmax(0, 1fr) auto;
+    padding: 11px 9px;
+  }
+  .round-block {
+    width: 36px;
+    padding-right: 6px;
+  }
+  .circuit-bottom {
+    gap: 5px;
+  }
+}
