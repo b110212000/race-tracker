@@ -11,5 +11,9 @@
   ],
   "analysisAvailable": [],
   "qualifyingResults": {},
-  "sprintResults": {}
+  "sprintResults": {},
+  "standingsHistory": {
+    "driver": {},
+    "constructor": {}
+  }
 }
