@@ -1,0 +1,47 @@
+.lapcmp{display:flex;flex-direction:column;gap:15px;margin:18px 0 0}
+.lapcmp-heading,.lapcmp-panel-title{display:flex;align-items:end;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.lapcmp-heading h3{font-size:21px;margin:5px 0 0}.lapcmp-heading>span,.lapcmp-panel-title>span{color:#98a8bb;font-size:11px}
+.lapcmp-explain,.lapcmp-note{font-size:11px;line-height:1.75;color:#a1afc1;margin:0}
+.lapcmp-selection{display:grid;grid-template-columns:minmax(0,1fr) 25px minmax(0,1fr);align-items:end;gap:11px}
+.lapcmp-selection label{display:flex;flex-direction:column;gap:6px;min-width:0}.lapcmp-selection label>span{font-size:11px;color:#9fadc0}
+.lapcmp-selection select{width:100%;padding:11px 8px;color:#e9eef8;font-size:12px;background:#1b2633;border:1px solid #384757;border-radius:8px}
+.lapcmp-switch-icon{align-self:center;color:#a4afbf;margin-top:17px}
+.lapcmp-option{display:flex;align-items:center;flex-wrap:wrap;gap:7px;font-size:12px;color:#b9c5d4;cursor:pointer}
+.lapcmp-option input{accent-color:#eb5b66;width:15px;height:15px}.lapcmp-option small{font-size:10px;color:#879aaf}
+.lapcmp-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.lapcmp-stats>div{border:1px solid #344155;border-radius:10px;background:#192330;padding:12px;min-width:0}
+.lapcmp-legend-item{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;min-width:0}
+.lapcmp-legend-item i{width:12px;height:12px;border-radius:100%;flex-shrink:0}
+.lapcmp-stat-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin-top:12px}
+.lapcmp-stat{display:flex;flex-direction:column;gap:5px;min-width:0}
+.lapcmp-stat span{font-size:10px;color:#94a5b8;line-height:1.5}.lapcmp-stat b{font-size:14px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.lapcmp-stat.emphasis b{color:#f8b1b3}
+.lapcmp-chart-panel,.lapcmp-tyres{display:flex;flex-direction:column;gap:13px;padding:15px;border:1px solid #2d3b4a;background:#151e29;border-radius:11px;min-width:0}
+.lapcmp-panel-title h4{font-size:15px;margin:0}
+.lapcmp-chart-scroller{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.lapcmp-chart-scroller svg{min-width:650px;max-height:320px;display:block}
+.lapcmp-matchup{display:grid;grid-template-columns:40px minmax(0,1fr) 40px;align-items:center;text-align:center;gap:10px;padding:11px;border:1px solid #334150;background:#1e2936;border-radius:10px}
+.lapcmp-matchup b{font-size:24px}.lapcmp-matchup span{font-size:11px;color:#b3c0d0}
+.lapcmp-delta{display:flex;flex-direction:column;gap:13px}
+.lapcmp-delta input[type=range]{width:100%;accent-color:#e7515d;cursor:pointer}
+.lapcmp-stepper{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.lapcmp-stepper button{display:flex;align-items:center;gap:3px;color:#d8e1eb;font-size:12px;padding:8px;border-radius:7px;background:#283341;border:1px solid #3a4858}
+.lapcmp-stepper button:disabled{opacity:.4;cursor:not-allowed}
+.lapcmp-stepper strong{font-size:13px;font-variant-numeric:tabular-nums}.lapcmp-stepper small{font-size:10px;color:#94a4b6}
+.lapcmp-delta-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.lapcmp-delta-cards .lapcmp-stat{padding:10px;border-radius:9px;background:#1e2937}
+.lapcmp-delta-cards .lapcmp-stat b{font-size:15px}
+.lapcmp-sector-table{border:1px solid #334250;border-radius:9px}
+.lapcmp-sector-table>div{display:grid;grid-template-columns:minmax(0,1fr) 90px 90px;gap:12px;padding:10px 12px;border-top:1px solid #2d3b4b;font-size:11px}
+.lapcmp-sector-table>div:first-child{border-top:0}.lapcmp-sector-table span{color:#a4b1c2}
+.lapcmp-sector-table strong{font-variant-numeric:tabular-nums;text-align:right;font-weight:600}
+.lapcmp-tyres-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.lapcmp-tyre-card{padding:12px;border:1px solid #314050;border-radius:9px;min-width:0}
+.lapcmp-tyre-title{display:flex;align-items:center;gap:7px;font-size:12px}.lapcmp-tyre-title i{height:13px;width:5px;border-radius:5px}
+.lapcmp-tyre-title span{margin-left:auto;color:#91a3b8;font-size:10px}
+.lapcmp-tyre-list{margin-top:8px}.lapcmp-tyre-list>div{display:grid;grid-template-columns:minmax(52px,1fr) minmax(70px,1.1fr) 65px 30px;gap:5px;align-items:center;border-top:1px solid #2b3a4a;padding:9px 0;font-size:11px}
+.lapcmp-tyre-list span:nth-child(2){color:#a0b1c4}.lapcmp-tyre-list b{text-align:right;font-size:11px}.lapcmp-tyre-list small{text-align:right;color:#879cb1;font-size:9px}
+.lapcmp-empty{border:1px dashed #435065;border-radius:10px;display:flex;flex-direction:column;align-items:center;gap:9px;padding:28px;text-align:center;font-size:12px;color:#b5c4d5}
+.lapcmp-empty p{font-size:11px;color:#97aabc;line-height:1.7;margin:0}
+.lapcmp-note svg{vertical-align:middle;margin-right:3px}
+@media(max-width:620px){.lapcmp-stats,.lapcmp-tyres-grid{grid-template-columns:1fr}.lapcmp-selection{gap:6px}.lapcmp-selection select{font-size:11px}.lapcmp-delta-cards{gap:5px}.lapcmp-delta-cards .lapcmp-stat{padding:8px 5px}.lapcmp-delta-cards .lapcmp-stat b{font-size:12px}.lapcmp-delta-cards .lapcmp-stat span{font-size:9px}.lapcmp-chart-panel{padding:10px}.lapcmp-tyre-title span{font-size:9px}.lapcmp-heading h3{font-size:19px}}
