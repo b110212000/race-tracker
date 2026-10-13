@@ -22,13 +22,14 @@ from zoneinfo import ZoneInfo
 
 from analysis import refresh_analyses
 from weekend import get_session_results
+from standings_history import collect_official_history
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "public" / "data" / "season.json"
 SEASON = datetime.now(ZoneInfo("Asia/Taipei")).year
 JOLPICA = "https://api.jolpi.ca/ergast/f1"
 OPENF1 = "https://api.openf1.org/v1"
-UA = "RaceTrackerPWA/1.3 (free non-commercial GitHub Pages fan project; API attribution in README)"
+UA = "RaceTrackerPWA/1.4 (free non-commercial GitHub Pages fan project; API attribution in README)"
 
 
 def get_json(url: str, *, optional: bool = False):
@@ -201,12 +202,25 @@ def build():
         analysis_available = []
         warnings.append(f"歷史賽事分析目前無法更新：{exc}")
 
+    # Official after-each-round championship points; use cached snapshots to avoid
+    # repeating requests for old races on each scheduled deployment.
+    try:
+        standings_history, history_errors = collect_official_history(
+            SEASON, completed, get_json, JOLPICA)
+        if history_errors:
+            print(f"  standings history: {len(history_errors)} unavailable round feeds", file=sys.stderr)
+            warnings.append("部分歷史積分回合暫時缺漏，折線圖不會自行補值。")
+    except (OSError, ValueError, TypeError) as exc:
+        standings_history = {"driver": {}, "constructor": {}}
+        warnings.append(f"歷史積分走勢暫時無法更新：{exc}")
+
     payload = {
         "season": SEASON,
         "updatedAt": now.isoformat(),
         "schedule": schedule,
         "driverStandings": (drivers[0].get("DriverStandings", []) if drivers else []),
         "constructorStandings": (teams[0].get("ConstructorStandings", []) if teams else []),
+        "standingsHistory": standings_history,
         "results": results,
         "qualifyingResults": qualifying,
         "sprintResults": sprint,
