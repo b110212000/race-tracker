@@ -1,0 +1,10 @@
+{
+  "season": 2026,
+  "updatedAt": null,
+  "schedule": [],
+  "driverStandings": [],
+  "constructorStandings": [],
+  "results": {},
+  "events": {},
+  "warnings": ["首次部署時 GitHub Actions 會自動取得當季資料。"]
+}

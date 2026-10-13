@@ -1,0 +1,53 @@
+name: Update F1 data and deploy Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    # 每 6 小時刷新一次，UTC。GitHub 定時任務可能延遲，不保證準點。
+    - cron: '17 */6 * * *'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Refresh non-live F1 data
+        run: python scripts/update_data.py
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Build for repository Pages URL
+        env:
+          GITHUB_PAGES_REPO: ${{ github.event.repository.name }}
+        run: npm run build
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Upload static site
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ./dist
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
