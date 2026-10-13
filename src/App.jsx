@@ -1,16 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
 import AnalysisPanel from './Analysis.jsx';
 import IncidentPanel from './Incidents.jsx';
+import WeekendPanel from './Weekend.jsx';
 import {
   Activity, ArrowDownRight, ArrowRight, ArrowUpRight, BellOff, CalendarDays,
   CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, Clock3, ExternalLink,
   Flag, FlagTriangleRight, Gauge, History, Info, MapPin, RefreshCw,
-  Search, ShieldAlert, Trophy, Users, Wrench, Zap
+  Search, ShieldAlert, Timer, Trophy, Users, Wrench, Zap
 } from 'lucide-react';
 
 const TZ = 'Asia/Taipei';
 const BASE = import.meta.env.BASE_URL;
-const EMPTY = { season: new Date().getFullYear(), schedule: [], driverStandings: [], constructorStandings: [], results: {}, events: {}, analysisAvailable: [], updatedAt: null, warnings: [] };
+const EMPTY = { season: new Date().getFullYear(), schedule: [], driverStandings: [], constructorStandings: [], results: {}, qualifyingResults: {}, sprintResults: {}, events: {}, analysisAvailable: [], updatedAt: null, warnings: [] };
 const t = (value, opts = {}) => value ? new Intl.DateTimeFormat('zh-TW', { timeZone: TZ, ...opts }).format(new Date(value)) : '—';
 const twDate = (value) => t(value, { month: '2-digit', day: '2-digit', weekday: 'short' });
 const twClock = (value) => t(value, { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
@@ -163,8 +164,8 @@ function Results({ data, race, tab, setTab, onBack }) {
   return <div className="view detail-view">
     <div className="detail-banner"><button className="backline" onClick={onBack}><ChevronLeft size={16}/> 返回賽程</button><span className="eyebrow">ROUND {String(race.round).padStart(2,'0')} / {data.season}</span><h1>{country(race)}大獎賽</h1><p>{race.raceName}</p><div className="detail-banner-meta"><span><MapPin size={14}/>{race.Circuit?.circuitName}</span><span><CalendarDays size={14}/>{twClock(raceDate(race))}</span></div></div>
     <div className="details-grid"><section className="surface-panel"><PanelTitle eyebrow="WEEKEND PROGRAM" title="比賽週末時間表"/><SessionSchedule race={race}/><p className="timezone-foot">所有時間已轉換為台灣時間（UTC+8）。</p></section><section className="surface-panel"><PanelTitle eyebrow="RACE INSIGHTS" title="賽事資訊"/><div className="facts"><div><span>場次</span><strong>ROUND {race.round}</strong></div><div><span>國家／地區</span><strong>{country(race)}</strong></div><div><span>賽道</span><strong>{race.Circuit?.circuitName || '—'}</strong></div><div><span>成績狀態</span><RacePill data={data} race={race}/></div></div></section></div>
-    <section className="surface-panel result-panel"><PanelTitle eyebrow="RACE ARCHIVE" title="賽果、分析與事故事件"/><div className="segmented" role="group" aria-label="賽事資料"><button className={tab === 'analysis' ? 'selected' : ''} onClick={() => setTab('analysis')}><Activity size={15}/> 賽事分析</button><button className={tab === 'results' ? 'selected' : ''} onClick={() => setTab('results')}><Trophy size={15}/> 完賽成績</button><button className={tab === 'events' ? 'selected' : ''} onClick={() => setTab('events')}><ShieldAlert size={15}/> 事件紀錄</button></div>
-      {tab === 'analysis' ? <AnalysisPanel race={race} season={data.season} available={data.analysisAvailable || []} onShowEvents={(lap) => { setFocusedLap(lap); setTab('events'); }}/> : tab === 'results' ? (rows.length ? <div className="results-list"><div className="results-heading"><span>名次</span><span>車手</span><span>時間／狀態</span><span>積分</span></div>{rows.map((r) => <div className="result-row" key={`${r.Driver.driverId}-${r.position}`}><b className="result-pos">{r.position}</b><div className="driver-identity"><span className="team-accent" style={{'--team':getTeamColor(r.Constructor?.constructorId)}}/><span><strong>{r.Driver.givenName} {r.Driver.familyName}</strong><small>{r.Constructor?.name}</small></span></div><span className="result-status">{r.Time?.time || r.status || '—'}</span><b className="score">{points(r.points)}</b></div>)}</div> : <EmptyState title="尚未公布正式賽果" detail="本頁只顯示已發布的歷史成績，不冒充即時排名" icon={Clock3}/>) : (
+    <section className="surface-panel result-panel"><PanelTitle eyebrow="RACE ARCHIVE" title="比賽週末與賽事分析"/><div className="segmented" role="group" aria-label="賽事資料"><button className={tab === 'weekend' ? 'selected' : ''} onClick={() => setTab('weekend')}><Timer size={15}/> 週末成績</button><button className={tab === 'analysis' ? 'selected' : ''} onClick={() => setTab('analysis')}><Activity size={15}/> 賽事分析</button><button className={tab === 'results' ? 'selected' : ''} onClick={() => setTab('results')}><Trophy size={15}/> 完賽成績</button><button className={tab === 'events' ? 'selected' : ''} onClick={() => setTab('events')}><ShieldAlert size={15}/> 事件紀錄</button></div>
+      {tab === 'weekend' ? <WeekendPanel race={race} data={data}/> : tab === 'analysis' ? <AnalysisPanel race={race} season={data.season} available={data.analysisAvailable || []} onShowEvents={(lap) => { setFocusedLap(lap); setTab('events'); }}/> : tab === 'results' ? (rows.length ? <div className="results-list"><div className="results-heading"><span>名次</span><span>車手</span><span>時間／狀態</span><span>積分</span></div>{rows.map((r) => <div className="result-row" key={`${r.Driver.driverId}-${r.position}`}><b className="result-pos">{r.position}</b><div className="driver-identity"><span className="team-accent" style={{'--team':getTeamColor(r.Constructor?.constructorId)}}/><span><strong>{r.Driver.givenName} {r.Driver.familyName}</strong><small>{r.Constructor?.name}</small></span></div><span className="result-status">{r.Time?.time || r.status || '—'}</span><b className="score">{points(r.points)}</b></div>)}</div> : <EmptyState title="尚未公布正式賽果" detail="本頁只顯示已發布的歷史成績，不冒充即時排名" icon={Clock3}/>) : (
         <IncidentPanel events={events} focusedLap={focusedLap} setFocusedLap={setFocusedLap} raceKey={race.round}/>
       )}</section>
   </div>;
@@ -193,11 +194,11 @@ export default function App() {
   const completed = sorted.filter((r) => (data.results?.[r.round] || []).length);
   const recent = completed.at(-1) || sorted.find((r) => raceDate(r).getTime() > now) || sorted.at(-1);
   const selected = sorted.find((r) => String(r.round) === String(raceRound)) || recent || sorted[0];
-  const openRace = (round) => { setRaceRound(round); setDetailTab((data.analysisAvailable || []).map(String).includes(String(round)) ? 'analysis' : 'results'); setTab('races'); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  const openRace = (round) => { setRaceRound(round); setDetailTab((data.qualifyingResults?.[round]?.length || data.sprintResults?.[round]?.length) ? 'weekend' : (data.analysisAvailable || []).map(String).includes(String(round)) ? 'analysis' : 'results'); setTab('races'); window.scrollTo({ top: 0, behavior: 'smooth' }); };
   const go = (which) => { setTab(which); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 
   return <div className="app-layout">
-    <aside className="sidebar"><Brand/><div className="sidebar-section">EXPLORE</div><nav aria-label="主選單">{nav.map((item) => <NavButton key={item.id} item={item} active={tab === item.id} onClick={() => go(item.id)}/>)}</nav><div className="sidebar-spacer"/><div className="sidebar-info"><div className="sidebar-info-icon"><Activity size={18}/></div><strong>FREE DATA EDITION</strong><p>全年賽程 · 歷史成績 · Race Control 訊息</p><span>非即時追蹤</span></div><div className="sidebar-footer">UNOFFICIAL FAN PROJECT <br/>v1.2.1</div></aside>
+    <aside className="sidebar"><Brand/><div className="sidebar-section">EXPLORE</div><nav aria-label="主選單">{nav.map((item) => <NavButton key={item.id} item={item} active={tab === item.id} onClick={() => go(item.id)}/>)}</nav><div className="sidebar-spacer"/><div className="sidebar-info"><div className="sidebar-info-icon"><Activity size={18}/></div><strong>FREE DATA EDITION</strong><p>全年賽程 · 歷史成績 · Race Control 訊息</p><span>非即時追蹤</span></div><div className="sidebar-footer">UNOFFICIAL FAN PROJECT <br/>v1.3.0</div></aside>
     <div className="main-shell"><header className="topbar"><div className="mobile-brand"><Brand/></div><div className="breadcrumb"><span>F1 RACE TRACKER</span><ChevronRight size={14}/><strong>{nav.find((item) => item.id === tab)?.label}</strong></div><div className="topbar-right"><span className="desktop-season">{data.season} SEASON</span><div className="update-state"><StatusDot live={false}/><span>{status === 'ready' ? '歷史 / 排程資料' : status === 'loading' ? '載入中' : '等待資料'}</span></div><button className="top-icon" onClick={() => setShowInfo(true)} title="資料來源與更新方式"><Info size={18}/></button></div></header>
       <main className="main-content">
         {status === 'error' && <div className="warning-bar"><Info size={17}/> 無法載入賽事資料。請檢查 GitHub Actions 是否成功部署，或重新整理網頁。</div>}
