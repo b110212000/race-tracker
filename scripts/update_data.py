@@ -20,12 +20,14 @@ from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 from zoneinfo import ZoneInfo
 
+from analysis import refresh_analyses
+
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "public" / "data" / "season.json"
 SEASON = datetime.now(ZoneInfo("Asia/Taipei")).year
 JOLPICA = "https://api.jolpi.ca/ergast/f1"
 OPENF1 = "https://api.openf1.org/v1"
-UA = "RaceTrackerPWA/1.0 (free non-commercial GitHub Pages fan project; API attribution in README)"
+UA = "RaceTrackerPWA/1.1 (free non-commercial GitHub Pages fan project; API attribution in README)"
 
 
 def get_json(url: str, *, optional: bool = False):
@@ -178,6 +180,15 @@ def build():
                 events[rnd] = previous.get("events", {}).get(rnd, [])
             print(f"  historical round {rnd}: {len(events.get(rnd, []))} messages ({index}/{len(completed)})")
 
+    # Build at most four new historical race analyses per run; reuse Actions cache.
+    # Failure of optional OpenF1 data does not prevent standings / results.
+    try:
+        analysis_available = refresh_analyses(SEASON, completed, sessions if completed else [],
+            results, matching_race_session, get_json, parse_date)
+    except (OSError, ValueError, TypeError) as exc:
+        analysis_available = []
+        warnings.append(f"歷史賽事分析目前無法更新：{exc}")
+
     payload = {
         "season": SEASON,
         "updatedAt": now.isoformat(),
@@ -186,6 +197,7 @@ def build():
         "constructorStandings": (teams[0].get("ConstructorStandings", []) if teams else []),
         "results": results,
         "events": events,
+        "analysisAvailable": analysis_available,
         "warnings": warnings,
     }
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
