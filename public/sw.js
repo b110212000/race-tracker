@@ -1,4 +1,4 @@
-const VERSION = 'race-tracker-v1.0.0';
+const VERSION = 'race-tracker-v1.2.1';
 const STATIC_CACHE = `${VERSION}-static`;
 const DATA_CACHE = `${VERSION}-data`;
 const ROOT = self.registration.scope;
