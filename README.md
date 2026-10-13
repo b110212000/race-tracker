@@ -1,6 +1,6 @@
 # Race Tracker（非官方 F1 賽事追蹤）
 
-React + Vite + GitHub Pages + PWA 的 **免費非即時版 v1.0.0**。
+React + Vite + GitHub Pages + PWA 的 **免費非即時版 v1.1.0**。
 
 ## 有哪些功能？
 
@@ -8,8 +8,10 @@ React + Vite + GitHub Pages + PWA 的 **免費非即時版 v1.0.0**。
 - 車手 / 車隊年度積分榜
 - 已結束比賽的車手名次、完賽狀態與積分
 - OpenF1 有提供的 **歷史** Race Control 事件（包含安全車、事故調查、旗號等）
+- **逐圈近似排名回放**（以歷史位置資料在每圈附近時間取樣，非官方逐圈名次）
+- **輪胎 stint 策略**、各車手使用胎種及圈數、**進站停車與 Pit Lane 時間**
 - 手機版 UI 與 iPhone 加入主畫面的 PWA
-- GitHub Actions 每 6 小時嘗試更新一份靜態資料快照，不需要維護後端伺服器
+- GitHub Actions 每 6 小時嘗試更新一份靜態資料快照，另外每次逐批補齊最多四站歷史分析並由 Actions Cache 保留，不需要維護後端伺服器
 
 **本版沒有秒級即時賽況、事故肇責自動判定、手機推播。** 事件僅列出原始訊息，不會把「涉及某車手」推定為「他造成碰撞」。
 
@@ -41,6 +43,7 @@ npm run dev
 ```text
 .github/workflows/pages.yml   # 定期抓取資料並部署到 Pages
 scripts/update_data.py       # Jolpica + OpenF1 歷史資料 → JSON
+scripts/analysis.py          # OpenF1 逐圈取樣、輪胎與進站快取
 src/App.jsx                  # React 應用程式
 src/styles.css               # RWD 介面
 public/data/season.json      # 靜態資料；Actions build 時重新產生
@@ -61,4 +64,4 @@ vite.config.js               # 由 GitHub Repo 名稱建立正確 Pages base pat
 
 ## 後續版本
 
-v1.1：歷史逐圈資料和進站紀錄。v1.2：事故時間軸與外部裁判公告連結。v1.3：提醒通知（需要可用的推播後端）。要有秒級即時排名，需要另行評估合法授權的即時資料方案。
+v1.1：歷史逐圈近似位置、輪胎與進站紀錄（已完成）。v1.2：事故事件篩選、中文重點標籤與同圈聯動。v1.3：提醒通知（需要可用的推播後端）。要有秒級即時排名，需要另行評估合法授權的即時資料方案。
