@@ -73,6 +73,40 @@ def sample_lap_positions(position_rows, lap_rows, parse_date):
     return snapshots
 
 
+def normalize_lap_times(rows):
+    """Compact documented OpenF1 lap timings. Missing and invalid laps stay absent.
+
+    This includes timings run under flags or changing track conditions; no
+    unsupported classification as clean/green-flag racing is inferred.
+    """
+    normalized = {}
+    for item in rows:
+        if not isinstance(item, dict):
+            continue
+        no, lap = as_int(item.get("driver_number")), as_int(item.get("lap_number"))
+        duration = as_float(item.get("lap_duration"))
+        if no is None or lap is None or lap < 1 or lap > 250:
+            continue
+        if duration is None or not 30 <= duration <= 600:
+            continue
+        sectors = []
+        for field in ("duration_sector_1", "duration_sector_2", "duration_sector_3"):
+            value = as_float(item.get(field))
+            sectors.append(round(value, 3) if value is not None and 0 < value < 300 else None)
+        record = {
+            "number": no, "lap": lap, "time": round(duration, 3),
+            "sectors": sectors,
+            "pitOut": item.get("is_pit_out_lap") is True,
+        }
+        key = (no, lap)
+        previous = normalized.get(key)
+        if previous is None or sum(x is not None for x in record["sectors"]) > sum(
+            x is not None for x in previous["sectors"]
+        ):
+            normalized[key] = record
+    return sorted(normalized.values(), key=lambda x: (x["lap"], x["number"]))
+
+
 def normalize_stints(rows):
     result = []
     for row in rows:
@@ -135,19 +169,22 @@ def build_race_analysis(year, race, session, results, get_json, parse_date):
         "generatedAt": datetime.now(timezone.utc).isoformat(),
         "sampling": "approximate-lap-finish",
         "drivers": drivers, "lapSnapshots": snapshots,
+        "lapTimes": normalize_lap_times(lap_rows or []), "schemaVersion": 2,
         "stints": normalize_stints(stints or []), "pitStops": normalize_pits(pits or []),
         "sources": {"positions": position_rows is not None, "laps": lap_rows is not None,
+                    "lapTimes": lap_rows is not None,
                     "stints": stints is not None, "pit": pits is not None},
     }
 
 
 def refresh_analyses(year, completed, sessions, results, match_session,
-                     get_json, parse_date, max_new=4):
+                     get_json, parse_date, max_new=4, max_enrich=2):
     """Progressively backfill completed rounds; reuse cache on each scheduled build."""
     CACHE.mkdir(parents=True, exist_ok=True)
     PUBLIC.mkdir(parents=True, exist_ok=True)
     available = []
     pending = []
+    upgrade = []
     for race in reversed(completed):  # newest first
         rnd = str(race["round"])
         path = CACHE / f"{year}-{rnd}.json"
@@ -155,6 +192,11 @@ def refresh_analyses(year, completed, sessions, results, match_session,
             try:
                 data = json.loads(path.read_text(encoding="utf-8"))
                 if data.get("season") == year and data.get("round") == rnd:
+                    # Older v1.4 analysis snapshots already contain raw position
+                    # sampling but did not persist lap duration. Enrich from one
+                    # historical laps request without rebuilding everything.
+                    if "lapTimes" not in data:
+                        upgrade.append((race, data, path))
                     shutil.copyfile(path, PUBLIC / path.name)
                     available.append(rnd)
                     continue
@@ -185,4 +227,21 @@ def refresh_analyses(year, completed, sessions, results, match_session,
                 print(f"  analysis round {rnd}: source unavailable (retry next build)")
         except (OSError, TypeError, ValueError) as exc:
             print(f"  analysis round {rnd}: skipped {exc}")
+    # Maximum two free historical lap requests per build. API failures keep
+    # the old usable replay snapshot and will be retried in a later build.
+    for race, data, path in upgrade[:max_enrich]:
+        rnd = str(race["round"])
+        key = data.get("sessionKey")
+        if not key:
+            continue
+        raw = get_json(f"{OPENF1}/laps?{urlencode({'session_key': key})}", optional=True)
+        if not isinstance(raw, list):
+            print(f"  lap timing round {rnd}: unavailable; preserve original replay")
+            continue
+        data["lapTimes"] = normalize_lap_times(raw)
+        data["schemaVersion"] = 2
+        data.setdefault("sources", {})["lapTimes"] = True
+        path.write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+        shutil.copyfile(path, PUBLIC / path.name)
+        print(f"  lap timing round {rnd}: backfilled {len(data['lapTimes'])} laps")
     return sorted(set(available), key=int)
