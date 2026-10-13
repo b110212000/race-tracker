@@ -169,7 +169,10 @@ def build_race_analysis(year, race, session, results, get_json, parse_date):
         "generatedAt": datetime.now(timezone.utc).isoformat(),
         "sampling": "approximate-lap-finish",
         "drivers": drivers, "lapSnapshots": snapshots,
-        "lapTimes": normalize_lap_times(lap_rows or []), "schemaVersion": 2,
+        # If laps fetch failed, do not cache an empty array as if successful:
+        # next scheduled build should retry this race.
+        **({"lapTimes": normalize_lap_times(lap_rows)} if lap_rows is not None else {}),
+        "schemaVersion": 2,
         "stints": normalize_stints(stints or []), "pitStops": normalize_pits(pits or []),
         "sources": {"positions": position_rows is not None, "laps": lap_rows is not None,
                     "lapTimes": lap_rows is not None,
