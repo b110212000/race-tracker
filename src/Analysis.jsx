@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Activity, ArrowDown, ArrowUp, Clock3, Flag, Gauge, Info, RefreshCw, Timer, Wrench } from 'lucide-react';
+import LapCompare from './LapCompare.jsx';
+import { Activity, ArrowDown, ArrowUp, ChartNoAxesCombined, Clock3, Flag, Gauge, Info, RefreshCw, Timer, Wrench } from 'lucide-react';
 import './analysis.css';
 
 const colors = {
@@ -75,7 +76,9 @@ export default function AnalysisPanel({ race, season, available = [], onShowEven
         <button type="button" className={view==='replay'?'chosen':''} onClick={()=>setView('replay')}><Activity size={16}/> 逐圈排名</button>
         <button type="button" className={view==='tyres'?'chosen':''} onClick={()=>setView('tyres')}><Gauge size={16}/> 輪胎策略</button>
         <button type="button" className={view==='pits'?'chosen':''} onClick={()=>setView('pits')}><Wrench size={16}/> 進站紀錄</button>
+        <button type="button" className={view==='comparison'?'chosen':''} onClick={()=>setView('comparison')}><ChartNoAxesCombined size={16}/> 圈速比較</button>
       </div>
+      {view==='comparison' && <LapCompare analysis={analysis}/>}
       {view==='replay' && <div className="analysis-content">
         {snapshots.length ? <>
           <div className="replay-head"><div><span className="analysis-overline">LAP POSITION REPLAY</span><h3>第 {current.lap} 圈 <small>/ {maxLap} 圈（可用取樣）</small></h3></div><span className="analysis-muted">近似位置 · 非官方逐圈計時</span></div>
