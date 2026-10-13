@@ -133,6 +133,7 @@ def normalize_event(event):
         "category": event.get("category"),
         "flag": event.get("flag"),
         "driverNumber": event.get("driver_number"),
+        "sessionKey": event.get("session_key"),
         "message": event.get("message") or "（未提供事件內容）",
     }
 
