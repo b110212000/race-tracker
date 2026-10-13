@@ -214,7 +214,7 @@ export default function App() {
   const openProfile = (type,id) => { if(!id)return;setProfileRequest({type,id});setTab('profiles');resetContentScroll(); };
 
   return <div className="app-layout">
-    <aside className="sidebar"><Brand/><div className="sidebar-section">EXPLORE</div><nav aria-label="主選單">{nav.map((item) => <NavButton key={item.id} item={item} active={tab === item.id} onClick={() => go(item.id)}/>)}</nav><div className="sidebar-spacer"/><div className="sidebar-info"><div className="sidebar-info-icon"><Activity size={18}/></div><strong>FREE DATA EDITION</strong><p>全年賽程 · 歷史成績 · Race Control 訊息</p><span>非即時追蹤</span></div><div className="sidebar-footer">UNOFFICIAL FAN PROJECT <br/>v1.5.2</div></aside>
+    <aside className="sidebar"><Brand/><div className="sidebar-section">EXPLORE</div><nav aria-label="主選單">{nav.map((item) => <NavButton key={item.id} item={item} active={tab === item.id} onClick={() => go(item.id)}/>)}</nav><div className="sidebar-spacer"/><div className="sidebar-info"><div className="sidebar-info-icon"><Activity size={18}/></div><strong>FREE DATA EDITION</strong><p>全年賽程 · 歷史成績 · Race Control 訊息</p><span>非即時追蹤</span></div><div className="sidebar-footer">UNOFFICIAL FAN PROJECT <br/>v1.5.3</div></aside>
     <div className="main-shell"><header className="topbar"><div className="mobile-brand"><Brand/></div><div className="breadcrumb"><span>F1 RACE TRACKER</span><ChevronRight size={14}/><strong>{nav.find((item) => item.id === tab)?.label}</strong></div><div className="topbar-right"><span className="desktop-season">{data.season} SEASON</span><div className="update-state"><StatusDot live={false}/><span>{status === 'ready' ? '歷史 / 排程資料' : status === 'loading' ? '載入中' : '等待資料'}</span></div><button className="top-icon" onClick={() => setShowInfo(true)} title="資料來源與更新方式"><Info size={18}/></button></div></header>
       <div className="main-scroll" ref={scrollRef} role="region" aria-label="頁面內容" tabIndex={0}>
       <main className="main-content">
@@ -227,7 +227,7 @@ export default function App() {
         {tab === 'profiles' && <Profiles data={data} request={profileRequest} onRace={openRace}/> }
         {tab === 'races' && <Results data={data} race={selected} tab={detailTab} setTab={setDetailTab} onBack={() => go('schedule')}/>}
       </main>
-      <footer className="main-footer"><span>資料來源：<a href="https://api.jolpi.ca/docs/" target="_blank" rel="noreferrer">Jolpica F1</a> · <a href="https://openf1.org/docs/" target="_blank" rel="noreferrer">OpenF1</a></span><span>最新產生：{data.updatedAt ? twClock(data.updatedAt) : '等待首次部署'}（台灣時間）</span><span>非官方 · 非即時 · v1.5.2</span></footer>
+      <footer className="main-footer"><span>資料來源：<a href="https://api.jolpi.ca/docs/" target="_blank" rel="noreferrer">Jolpica F1</a> · <a href="https://openf1.org/docs/" target="_blank" rel="noreferrer">OpenF1</a></span><span>最新產生：{data.updatedAt ? twClock(data.updatedAt) : '等待首次部署'}（台灣時間）</span><span>非官方 · 非即時 · v1.5.3</span></footer>
       </div>
     </div>
     <nav className="mobile-nav" aria-label="手機主選單">{nav.map((item) => <NavButton key={item.id} item={item} active={tab === item.id} onClick={() => go(item.id)}/>)}</nav>
