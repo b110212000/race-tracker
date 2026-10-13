@@ -95,7 +95,7 @@ export default function AnalysisPanel({ race, season, available = [], onShowEven
             })}
           </div>
           <p className="analysis-caption">↑↓ 代表與上一個可用取樣的比較，不一定是該圈發生的真實超車；當資料不足時不推估名次。</p>
-          <button className="analysis-link-button" onClick={onShowEvents}><Flag size={15}/> 查看這場比賽的事故與旗號事件</button>
+          <button className="analysis-link-button" onClick={()=>onShowEvents(current?.lap ?? null)}><Flag size={15}/> 查看這場比賽的事故與旗號事件</button>
         </>:<AnalysisNotice title="缺少逐圈排名資料">這場賽事沒有足夠的位置與圈數記錄，請查看輪胎或進站資料。</AnalysisNotice>}
       </div>}
       {view==='tyres' && <div className="analysis-content">
