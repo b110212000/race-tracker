@@ -49,7 +49,9 @@ test('pit-out and pit-near laps excluded only when toggled',()=>{
   const rows=normalizeComparison(analysis,44,16,true);
   assert.equal(rows.find(x=>x.lap===2).a,null);
   assert.equal(rows.find(x=>x.lap===3).a,null);
-  assert.equal(rows.find(x=>x.lap===4).a,null);
+  // Lap 4 only had A, and it was intentionally filtered out:
+  // no fabricated placeholder row is added.
+  assert.equal(rows.find(x=>x.lap===4),undefined);
   assert.equal(rows.find(x=>x.lap===2).b.time,92);
   assert.equal(matchedDeltas(rows).length,1);
 });
