@@ -63,7 +63,7 @@ export default function IncidentPanel({ events = [], focusedLap, setFocusedLap, 
   const shown = useMemo(() => types.filter(e => {
     if (kind!=='all' && e.kind!==kind) return false;
     if (focusedLap!==null && Number(e.lap)!==focusedLap) return false;
-    return !search || (String(e.message)+' '+chineseEventSummary(e)).toLowerCase().includes(search.trim().toLowerCase());
+    return !search || (String(e.message)+' '+chineseEventSummary(e)+' '+mentionedCars(e).map(n=>'#'+n+' '+n).join(' ')).toLowerCase().includes(search.trim().toLowerCase());
   }).sort((a,b) => oldestFirst ? String(a.date).localeCompare(String(b.date)) : String(b.date).localeCompare(String(a.date))), [types, kind, focusedLap, search, oldestFirst]);
   const sessionKey = types.find(x=>x.sessionKey)?.sessionKey;
   const origin = sessionKey ? 'https://api.openf1.org/v1/race_control?session_key=' + encodeURIComponent(sessionKey) : 'https://openf1.org/docs/';
@@ -71,7 +71,7 @@ export default function IncidentPanel({ events = [], focusedLap, setFocusedLap, 
   return <div className="incident-wrap" key={raceKey}>
     <div className="incident-disclaimer"><ShieldAlert size={18}/><p>這是 <b>賽後歷史事件</b>，不是即時事故快訊。中文為關鍵字摘要，請以英文原文與 FIA 公告為準。<b>涉及車號不代表肇事者，也不能判斷誰撞誰。</b></p></div>
     <div className="incident-stats">
-      <div><b>{types.length}</b><span>歷史事件</span></div>
+      <div><b>{types.length}</b><span>已收錄事件</span></div>
       <div><b>{counts.collision||0}</b><span>接觸相關</span></div>
       <div><b>{counts.investigation||0}</b><span>調查通報</span></div>
       <div><b>{counts.decision||0}</b><span>判罰／裁定</span></div>
