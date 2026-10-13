@@ -21,13 +21,14 @@ from urllib.request import Request, urlopen
 from zoneinfo import ZoneInfo
 
 from analysis import refresh_analyses
+from weekend import get_session_results
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "public" / "data" / "season.json"
 SEASON = datetime.now(ZoneInfo("Asia/Taipei")).year
 JOLPICA = "https://api.jolpi.ca/ergast/f1"
 OPENF1 = "https://api.openf1.org/v1"
-UA = "RaceTrackerPWA/1.1 (free non-commercial GitHub Pages fan project; API attribution in README)"
+UA = "RaceTrackerPWA/1.3 (free non-commercial GitHub Pages fan project; API attribution in README)"
 
 
 def get_json(url: str, *, optional: bool = False):
@@ -152,6 +153,16 @@ def build():
     teams = get_list(team_data, "StandingsTable", "StandingsLists")
     events = {}
     warnings = []
+    # Jolpica paginates driver entries (max 100 per request), not race rounds.
+    # Optional session feeds must not block the rest of the free PWA.
+    qualifying = get_session_results(SEASON, "qualifying", "QualifyingResults", get_json, JOLPICA)
+    sprint = get_session_results(SEASON, "sprint", "SprintResults", get_json, JOLPICA)
+    if qualifying is None:
+        warnings.append("排位賽資料暫時無法完整取得，請稍後查看。")
+        qualifying = previous.get("qualifyingResults", {}) if previous.get("season") == SEASON else {}
+    if sprint is None:
+        warnings.append("Sprint 成績暫時無法完整取得，請稍後查看。")
+        sprint = previous.get("sprintResults", {}) if previous.get("season") == SEASON else {}
 
     # Only *historical* OpenF1 events: no live-session polling or claims of real-time coverage.
     completed = []
@@ -197,13 +208,15 @@ def build():
         "driverStandings": (drivers[0].get("DriverStandings", []) if drivers else []),
         "constructorStandings": (teams[0].get("ConstructorStandings", []) if teams else []),
         "results": results,
+        "qualifyingResults": qualifying,
+        "sprintResults": sprint,
         "events": events,
         "analysisAvailable": analysis_available,
         "warnings": warnings,
     }
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
-    print(f"Wrote {OUTPUT}: {len(schedule)} races, {len(results)} result rounds, {len(events)} event rounds")
+    print(f"Wrote {OUTPUT}: {len(schedule)} races, {len(results)} race rounds, {len(qualifying)} qualifying rounds, {len(sprint)} Sprint rounds, {len(events)} event rounds")
 
 
 if __name__ == "__main__":
