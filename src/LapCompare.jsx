@@ -23,7 +23,13 @@ function LinePaths({records,side,stroke,x,y}) {
     if(!rec[side]){
       if(part.length)paths.push(part);
       part=[];
-    } else part.push(rec);
+    } else {
+      // Do not connect points across a lap the source never recorded.
+      if(part.length && rec.lap-part[part.length-1].lap>1){
+        paths.push(part);part=[];
+      }
+      part.push(rec);
+    }
   });
   if(part.length)paths.push(part);
   return <g>
