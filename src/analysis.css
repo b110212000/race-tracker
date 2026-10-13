@@ -1,0 +1,56 @@
+
+.analysis-wrap{display:flex;flex-direction:column;gap:18px;margin-top:16px;color:#e5eaf2}
+.analysis-notice{background:#1d2532;border:1px solid #3a4555;border-radius:12px;display:flex;align-items:flex-start;gap:12px;padding:13px 15px;color:#c9d4e3}
+.analysis-notice svg{flex:0 0 auto;color:#efb85c}
+.analysis-notice strong{font-size:13px;display:block;margin-bottom:3px}
+.analysis-notice p{font-size:12px;color:#aab7c9;margin:0;line-height:1.7}
+.analysis-placeholder{padding:46px 20px;text-align:center;display:flex;justify-content:center;align-items:center;flex-direction:column;gap:12px;color:#aab8c9;font-size:13px}
+.analysis-spin{animation:analysis-spin 1.5s linear infinite}@keyframes analysis-spin{to{transform:rotate(360deg)}}
+.analysis-modes{display:flex;flex-wrap:wrap;gap:7px;border-bottom:1px solid #303a49;padding-bottom:12px}
+.analysis-modes button{display:flex;align-items:center;gap:7px;padding:9px 12px;border-radius:8px;font-size:13px;color:#b8c4d2;background:#1a2230;border:1px solid transparent}
+.analysis-modes button.chosen{color:#fff;border-color:#d84b56;background:#3e2730}
+.analysis-content{display:flex;flex-direction:column;gap:14px}
+.replay-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.analysis-overline{font-size:10px;letter-spacing:2px;color:#ef6c76;font-weight:700}
+.replay-head h3{margin:4px 0;font-family:Inter,'Noto Sans TC',sans-serif;font-size:20px}
+.replay-head h3 small{font-size:12px;color:#8997aa;font-weight:400}
+.analysis-muted,.analysis-caption{color:#8f9eb0;font-size:11px;line-height:1.7}
+.analysis-caption{margin:0}
+.lap-range{accent-color:#e64650;width:100%;height:22px;cursor:pointer}
+.replay-controls{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.replay-controls button{border:1px solid #334051;background:#232c39;border-radius:9px;padding:8px 12px;font-size:12px}
+.replay-controls button:disabled{opacity:.38;cursor:not-allowed}
+.replay-controls span{color:#9aa8ba;font-size:11px}
+.replay-ranking{border:1px solid #2b3544;border-radius:12px;overflow:hidden}
+.replay-row{display:flex;align-items:center;gap:12px;padding:10px 13px;border-top:1px solid #25303d;min-height:47px}
+.replay-row:first-child{border-top:0;background:#232c39}
+.replay-position{width:35px;font-size:14px}
+.analysis-driver{display:flex;align-items:center;gap:8px;min-width:0;flex:1}
+.analysis-team-dot{width:4px;height:25px;border-radius:3px;flex-shrink:0}
+.analysis-driver b{min-width:38px;font-size:13px}
+.analysis-driver small{min-width:0;color:#9eabb9;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px}
+.replay-movement{margin-left:auto;min-width:35px;display:flex;align-items:center;justify-content:flex-end;color:#8898ab;font-size:12px;font-weight:600}
+.replay-movement.up{color:#62c9a1}.replay-movement.down{color:#ff737d}
+.analysis-link-button{align-self:flex-start;display:flex;align-items:center;gap:8px;color:#fb939a;font-size:12px;padding:8px 0}
+.tyre-legend{display:flex;align-items:center;flex-wrap:wrap;gap:12px 17px}
+.tyre-legend span{display:flex;align-items:center;gap:5px;font-size:11px;color:#a9b6c8}
+.tyre-legend i{width:10px;height:10px;border-radius:100%}
+.tyre-grid{display:flex;flex-direction:column;gap:8px}
+.tyre-driver{border:1px solid #2b3443;border-radius:10px;background:#171e29;text-align:left;padding:11px 12px;transition:opacity .15s}
+.tyre-driver.muted{opacity:.42}
+.tyre-driver-header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.tyre-driver-header>span:last-child{font-size:11px;color:#8492a7;white-space:nowrap}
+.tyre-bar{height:17px;position:relative;background:#283241;border-radius:4px;overflow:hidden}
+.tyre-segment{position:absolute;top:0;bottom:0;min-width:1px;border-radius:2px;border-right:2px solid #171e29}
+.tyre-pit-mark{position:absolute;top:-2px;bottom:-2px;width:2px;z-index:2;background:#fff;box-shadow:0 0 2px #000}
+.tyre-breakdown{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;font-size:11px;color:#b8c4d2}
+.tyre-breakdown span{border-radius:6px;background:#283241;padding:5px 8px}
+.pit-table{border:1px solid #293343;border-radius:10px;overflow:hidden}
+.pit-head,.pit-row{display:grid;grid-template-columns:90px minmax(120px,1fr) 98px 105px;gap:8px;align-items:center;padding:11px 12px}
+.pit-head{font-size:11px;color:#8998ab;background:#1d2734}
+.pit-row{border-top:1px solid #2a3542;font-size:12px}
+.pit-row>b{font-size:12px}
+.pit-row>span:not(.analysis-driver){text-align:right;color:#c5d0df}
+.pit-head span:nth-child(n+3){text-align:right}
+.analysis-credit{display:flex;align-items:center;gap:6px;font-size:10px;color:#8795a9}
+@media(max-width:650px){.analysis-wrap{gap:14px}.analysis-modes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.analysis-modes button{font-size:11px;padding:10px 5px;justify-content:center;gap:4px}.analysis-modes button svg{width:14px}.replay-row{padding:8px;gap:6px}.analysis-driver{gap:6px}.analysis-driver small{font-size:10px}.tyre-driver-header>span:last-child{font-size:10px}.pit-table{overflow-x:auto}.pit-head,.pit-row{min-width:530px}}
