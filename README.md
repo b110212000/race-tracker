@@ -1,6 +1,6 @@
 # Race Tracker（非官方 F1 賽事追蹤）
 
-React + Vite + GitHub Pages + PWA 的 **免費非即時版 v1.4.0**。
+React + Vite + GitHub Pages + PWA 的 **免費非即時版 v1.5.0**。
 
 ## 有哪些功能？
 
@@ -16,6 +16,7 @@ React + Vite + GitHub Pages + PWA 的 **免費非即時版 v1.4.0**。
 - OpenF1 有提供的 **歷史** Race Control 事件（包含安全車、事故調查、旗號等）
 - **逐圈近似排名回放**（以歷史位置資料在每圈附近時間取樣，非官方逐圈名次）
 - **輪胎 stint 策略**、各車手使用胎種及圈數、**進站停車與 Pit Lane 時間**
+- **雙車手圈速比較**：歷史每圈秒數折線圖、共同圈數的時間差、Sector 1/2/3、最快圈與中位數、每段胎種平均圈速
 - **事故事件整合**：中文事件摘要、車號提及標籤、按事件類型及圈數篩選；絕不自動判定誰有事故責任
 - 手機版 UI 與 iPhone 加入主畫面的 PWA
 - GitHub Actions 每 6 小時嘗試更新一份靜態資料快照，另外每次逐批補齊最多四站歷史分析並由 Actions Cache 保留，不需要維護後端伺服器
@@ -50,7 +51,9 @@ npm run dev
 ```text
 .github/workflows/pages.yml   # 定期抓取資料並部署到 Pages
 scripts/update_data.py       # Jolpica + OpenF1 歷史資料 → JSON
-scripts/analysis.py          # OpenF1 逐圈取樣、輪胎與進站快取
+scripts/analysis.py          # OpenF1 歷史逐圈排名取樣、lap_duration、輪胎與進站快取
+src/LapCompare.jsx           # 雙車手歷史圈速、時間差與輪胎效能
+src/lap-utils.js             # 有效圈數與進站排除邏輯（內建 Node 測試）
 scripts/weekend.py           # Jolpica 排位賽與 Sprint 資料分頁收集
 scripts/standings_history.py # 每站正式車手／車隊積分榜，快取在 .cache/standings-history
 src/Profiles.jsx            # 車手與車隊中心、官方積分歷史圖表
@@ -101,3 +104,12 @@ v1.1：歷史逐圈近似位置、輪胎與進站紀錄（已完成）。v1.2：
 - 逐站累計積分透過 **`/{season}/{round}/driverstandings`** 和 **`/{season}/{round}/constructorstandings`** 的正式歷史榜單取得。只抓取已完賽回合、快取後不重複抓取；資料源缺漏絕不自動補值。
 - 「同隊比較」僅計算同一站兩人同隊且都有排名的排位賽；正賽只比較雙方被列為完賽的場次。
 - 提供資料來源介紹連結，不使用未授權的車手／車隊肖像或商標。
+
+## v1.5.0 雙車手歷史圈速分析
+
+進入「賽事紀錄 → 已完賽分站 → 賽事分析 → 圈速比較」：
+- 選擇任兩位有歷史單圈時間的車手，呈現 OpenF1 `/laps` 的 `lap_duration`，以及三段 Sector 時間（如果來源有提供）。
+- 可選擇排除 OpenF1 明確標示的 **pit-out laps**，以及該車手進站前後各一圈，避免進站耗時扭曲比較。這只是進站過濾，**不代表綠旗乾淨圈**。
+- 提供同圈秒差（A − B）、最快圈、中位數和換胎每段 stint 的平均耗時；未記錄的圈數保持缺漏，不以插值補齊。
+- 舊版歷史賽事 JSON 未保存秒數，部署會每次最多補抓 **2 場** 的 OpenF1 歷史 `laps`，並沿用先前已快取的其他賽況資料。新建立的場次分析直接共用原本抓取的 `laps`，不重複查詢。
+- 完全使用 **免費歷史 API**，不要求付費即時資料。注意天氣、交通、安全車、油量、胎齡影響圈速，不能直接解釋為純車手實力。
