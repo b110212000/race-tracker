@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import AnalysisPanel from './Analysis.jsx';
 import IncidentPanel from './Incidents.jsx';
 import WeekendPanel from './Weekend.jsx';
@@ -84,10 +84,20 @@ function EventBadge({ event }) {
 }
 
 function CircuitCard({ race, className = '', onClick, data, compact = false }) {
-  return <button type="button" className={`circuit-card ${className}`} onClick={onClick}>
+  return <button type="button" className={`circuit-card ${compact ? 'is-compact' : ''} ${className}`} onClick={onClick}>
     <div className="round-block"><small>ROUND</small><strong>{String(race.round).padStart(2, '0')}</strong></div>
-    <div className="circuit-main"><strong>{country(race)}大獎賽</strong><span>{race.raceName}</span><div className="circuit-place"><MapPin size={12}/>{race.Circuit?.circuitName || '—'}</div></div>
-    <div className="circuit-right"><strong>{monthDay(raceDate(race))}</strong>{compact ? <ChevronRight size={16}/> : <RacePill race={race} data={data}/>}</div>
+    <div className="circuit-main">
+      <div className="circuit-heading">
+        <strong className="circuit-title">{country(race)}大獎賽</strong>
+        <span className="circuit-date"><CalendarDays size={13}/>{monthDay(raceDate(race))}</span>
+      </div>
+      <span className="circuit-subtitle">{race.raceName}</span>
+      <div className="circuit-bottom">
+        <span className="circuit-place"><MapPin size={13}/><span>{race.Circuit?.circuitName || '—'}</span></span>
+        {!compact && <RacePill race={race} data={data}/>}
+      </div>
+    </div>
+    {compact && <ChevronRight className="circuit-chevron" size={17}/>}
   </button>;
 }
 
@@ -182,6 +192,8 @@ export default function App() {
   const [now, setNow] = useState(Date.now());
   const [showInfo, setShowInfo] = useState(false);
   const [profileRequest, setProfileRequest] = useState(null);
+  const scrollRef = useRef(null);
+  const resetContentScroll = () => { if (scrollRef.current) scrollRef.current.scrollTop = 0; };
 
   useEffect(() => {
     let active = true;
@@ -197,13 +209,14 @@ export default function App() {
   const completed = sorted.filter((r) => (data.results?.[r.round] || []).length);
   const recent = completed.at(-1) || sorted.find((r) => raceDate(r).getTime() > now) || sorted.at(-1);
   const selected = sorted.find((r) => String(r.round) === String(raceRound)) || recent || sorted[0];
-  const openRace = (round) => { setRaceRound(round); setDetailTab((data.qualifyingResults?.[round]?.length || data.sprintResults?.[round]?.length) ? 'weekend' : (data.analysisAvailable || []).map(String).includes(String(round)) ? 'analysis' : 'results'); setTab('races'); window.scrollTo({ top: 0, behavior: 'auto' }); };
-  const go = (which) => { setTab(which); window.scrollTo({ top: 0, behavior: 'auto' }); };
-  const openProfile = (type,id) => { if(!id)return;setProfileRequest({type,id});setTab('profiles');window.scrollTo({top:0,behavior:'auto'}); };
+  const openRace = (round) => { setRaceRound(round); setDetailTab((data.qualifyingResults?.[round]?.length || data.sprintResults?.[round]?.length) ? 'weekend' : (data.analysisAvailable || []).map(String).includes(String(round)) ? 'analysis' : 'results'); setTab('races'); resetContentScroll(); };
+  const go = (which) => { setTab(which); resetContentScroll(); };
+  const openProfile = (type,id) => { if(!id)return;setProfileRequest({type,id});setTab('profiles');resetContentScroll(); };
 
   return <div className="app-layout">
-    <aside className="sidebar"><Brand/><div className="sidebar-section">EXPLORE</div><nav aria-label="主選單">{nav.map((item) => <NavButton key={item.id} item={item} active={tab === item.id} onClick={() => go(item.id)}/>)}</nav><div className="sidebar-spacer"/><div className="sidebar-info"><div className="sidebar-info-icon"><Activity size={18}/></div><strong>FREE DATA EDITION</strong><p>全年賽程 · 歷史成績 · Race Control 訊息</p><span>非即時追蹤</span></div><div className="sidebar-footer">UNOFFICIAL FAN PROJECT <br/>v1.5.1</div></aside>
+    <aside className="sidebar"><Brand/><div className="sidebar-section">EXPLORE</div><nav aria-label="主選單">{nav.map((item) => <NavButton key={item.id} item={item} active={tab === item.id} onClick={() => go(item.id)}/>)}</nav><div className="sidebar-spacer"/><div className="sidebar-info"><div className="sidebar-info-icon"><Activity size={18}/></div><strong>FREE DATA EDITION</strong><p>全年賽程 · 歷史成績 · Race Control 訊息</p><span>非即時追蹤</span></div><div className="sidebar-footer">UNOFFICIAL FAN PROJECT <br/>v1.5.2</div></aside>
     <div className="main-shell"><header className="topbar"><div className="mobile-brand"><Brand/></div><div className="breadcrumb"><span>F1 RACE TRACKER</span><ChevronRight size={14}/><strong>{nav.find((item) => item.id === tab)?.label}</strong></div><div className="topbar-right"><span className="desktop-season">{data.season} SEASON</span><div className="update-state"><StatusDot live={false}/><span>{status === 'ready' ? '歷史 / 排程資料' : status === 'loading' ? '載入中' : '等待資料'}</span></div><button className="top-icon" onClick={() => setShowInfo(true)} title="資料來源與更新方式"><Info size={18}/></button></div></header>
+      <div className="main-scroll" ref={scrollRef} role="region" aria-label="頁面內容" tabIndex={0}>
       <main className="main-content">
         {status === 'error' && <div className="warning-bar"><Info size={17}/> 無法載入賽事資料。請檢查 GitHub Actions 是否成功部署，或重新整理網頁。</div>}
         {status === 'pending' && <div className="warning-bar"><RefreshCw size={17}/> 專案已建立，等待首次 GitHub Actions 更新賽程與成績資料。</div>}
@@ -214,7 +227,8 @@ export default function App() {
         {tab === 'profiles' && <Profiles data={data} request={profileRequest} onRace={openRace}/> }
         {tab === 'races' && <Results data={data} race={selected} tab={detailTab} setTab={setDetailTab} onBack={() => go('schedule')}/>}
       </main>
-      <footer className="main-footer"><span>資料來源：<a href="https://api.jolpi.ca/docs/" target="_blank" rel="noreferrer">Jolpica F1</a> · <a href="https://openf1.org/docs/" target="_blank" rel="noreferrer">OpenF1</a></span><span>最新產生：{data.updatedAt ? twClock(data.updatedAt) : '等待首次部署'}（台灣時間）</span><span>非官方 · 非即時 · v1.5.1</span></footer>
+      <footer className="main-footer"><span>資料來源：<a href="https://api.jolpi.ca/docs/" target="_blank" rel="noreferrer">Jolpica F1</a> · <a href="https://openf1.org/docs/" target="_blank" rel="noreferrer">OpenF1</a></span><span>最新產生：{data.updatedAt ? twClock(data.updatedAt) : '等待首次部署'}（台灣時間）</span><span>非官方 · 非即時 · v1.5.2</span></footer>
+      </div>
     </div>
     <nav className="mobile-nav" aria-label="手機主選單">{nav.map((item) => <NavButton key={item.id} item={item} active={tab === item.id} onClick={() => go(item.id)}/>)}</nav>
     {showInfo && <div className="modal-backdrop" onClick={() => setShowInfo(false)}><div className="info-dialog" role="dialog" aria-modal="true" aria-label="資料說明" onClick={(e) => e.stopPropagation()}><div className="dialog-head"><strong>關於 Race Tracker</strong><button onClick={() => setShowInfo(false)}><span aria-hidden="true">×</span></button></div><p>這是非官方、非商業的賽車資料展示專案。Jolpica 提供賽程、車手／車隊積分及成績；OpenF1 提供已結束賽事的 Race Control 歷史事件、輪胎與逐圈近似位置資料。事故摘要僅根據英文關鍵字分類，不能推定肇事責任。</p><p>資料由 GitHub Actions 約每六小時嘗試更新一次；實際時間可能因排程延遲或 API 限制而變動。不包含即時定位、即時事故播報或推播功能。</p><div className="dialog-links"><a href="https://api.jolpi.ca/docs/" target="_blank" rel="noreferrer">Jolpica API <ExternalLink size={14}/></a><a href="https://openf1.org/docs/" target="_blank" rel="noreferrer">OpenF1 API <ExternalLink size={14}/></a></div><button className="dialog-confirm" onClick={() => setShowInfo(false)}>我知道了</button></div></div>}
