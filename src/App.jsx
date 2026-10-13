@@ -156,6 +156,7 @@ function SessionSchedule({ race }) {
 
 function Results({ data, race, tab, setTab, onBack }) {
   const [focusedLap, setFocusedLap] = useState(null);
+  useEffect(() => { setFocusedLap(null); }, [race?.round]);
   if (!race) return <EmptyState title="尚未選取賽事" detail="請先從賽程選擇一場比賽" icon={Flag}/>;
   const rows = data.results?.[race.round] || [];
   const events = data.events?.[race.round] || [];
